@@ -1,9 +1,16 @@
 import { UserName, PassWord, Email } from 'src/types';
+import { IsString, Length } from 'class-validator';
 
 export class RegisterDto {
-  readonly username: UserName;
+  @IsString()
+  @Length(3, 20)
+  readonly username!: UserName;
 
-  readonly password: PassWord;
+  @IsString()
+  @Length(6, 20)
+  readonly password!: PassWord;
 
-  readonly email: Email;
+  @Length(6, 20)
+  @IsString()
+  readonly email!: Email;
 }
