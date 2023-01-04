@@ -6,8 +6,17 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategy/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtGuard } from './guard/jwt.guard';
+import { APP_GUARD } from '@nestjs/core';
 @Module({
-  providers: [AuthService, LocalStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
+    },
+  ],
   imports: [
     UserModule,
     PassportModule,
@@ -16,9 +25,9 @@ import { ConfigService } from '@nestjs/config';
       useFactory: (configServide: ConfigService) => {
         const { secret, expiresIn } = configServide.get('jwt') as JwtConfig;
         return {
-          secret,
+          secret, // token 验证时用于解密的 secret
           signOptions: {
-            expiresIn,
+            expiresIn, // 过期时间
           },
         };
       },
