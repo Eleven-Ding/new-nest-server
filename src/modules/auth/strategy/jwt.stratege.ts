@@ -4,16 +4,21 @@ import { UserService } from './../../user/user.service';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { User } from 'src/types';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class JwtStratege extends PassportStrategy(Strategy) {
   constructor(
     private userService: UserService,
     private configService: ConfigService,
   ) {
+    const secret = 'elevendingshiyi';
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: (configService.get('jwt') as JwtConfig).secret,
+      // TODO:
+      // secretOrKey: (configService.get('jwt') as JwtConfig).secret,
+      secretOrKey: secret,
     });
   }
 
