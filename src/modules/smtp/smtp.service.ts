@@ -1,21 +1,29 @@
 import { createResponse } from 'src/common/transform/response.transform';
 import { ConfigService } from '@nestjs/config';
-import {
-  Injectable,
-  InternalServerErrorException,
-  HttpException,
-} from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { creatSendVerifyCodeTemplate } from 'src/share/mailer.templates';
 import { randomCode } from 'src/share/utils';
 import { Email } from 'src/types';
 import { SendCodeDto } from './dto/sendCode.dto';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
+import { VERIFY_CODE_EXP_TIME } from 'src/share/constant';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodemailer = require('nodemailer');
 
 @Injectable()
 export class SmtpService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    @InjectRedis() private readonly redis: Redis,
+  ) {
+    this.redis.get('1964845235@qq.com').then((res) => {
+      console.log(res);
+    });
+  }
 
+  // 发送验证码
   async sendCode({ email }: SendCodeDto) {
     const code = randomCode();
     try {
@@ -25,6 +33,7 @@ export class SmtpService {
         '验证码，请查收',
       );
       // 缓存 code
+      await this.redis.set(email, code, 'EX', VERIFY_CODE_EXP_TIME);
       return createResponse('验证码发送成功，请注意查收');
     } catch (error) {
       throw new HttpException(
@@ -34,6 +43,12 @@ export class SmtpService {
         500,
       );
     }
+  }
+  // 校验验证码
+  async verifyCode4Email(email: Email, code: string): Promise<boolean> {
+    const redisCode = await this.redis.get(email);
+    console.log(email, code, redisCode);
+    return redisCode === code;
   }
 
   sendMail(emails: Email[], template: string, subject: string) {
@@ -52,10 +67,7 @@ export class SmtpService {
       };
 
       transporter.sendMail(mailOptions, function (error: Error) {
-        if (error) {
-          reject(error);
-          console.log(error);
-        }
+        error && reject(error);
         resolve('');
         transporter.close(); // 如果没用，关闭连接池
       });

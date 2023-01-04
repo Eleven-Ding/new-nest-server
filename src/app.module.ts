@@ -8,6 +8,7 @@ import { config } from './config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from './modules/user/entity/user.entity';
 import { SmtpModule } from './modules/smtp/smtp.module';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
@@ -17,6 +18,12 @@ import { SmtpModule } from './modules/smtp/smtp.module';
     ConfigModule.forRoot({
       load: [config],
       isGlobal: true,
+    }),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return configService.get('redis');
+      },
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

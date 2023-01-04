@@ -12,4 +12,10 @@ export default () => ({
     user: '1559298665@qq.com',
     pass: 'escsvblwornshdai',
   },
+  redis: {
+    config: {
+      host: 'localhost',
+      port: 6379,
+    },
+  },
 });
