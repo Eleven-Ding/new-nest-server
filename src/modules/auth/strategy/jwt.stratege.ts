@@ -12,13 +12,10 @@ export class JwtStratege extends PassportStrategy(Strategy) {
     private userService: UserService,
     private configService: ConfigService,
   ) {
-    const secret = 'elevendingshiyi';
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      // TODO: 这里自己做鉴权，不使用自动鉴权，
-      // secretOrKey: (configService.get('jwt') as JwtConfig).secret,
-      secretOrKey: secret,
+      secretOrKey: (configService.get('jwt') as JwtConfig).secret,
     });
   }
 

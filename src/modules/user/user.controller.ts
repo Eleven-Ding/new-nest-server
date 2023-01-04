@@ -56,7 +56,6 @@ export class UserController {
   @Put('update')
   @Roles(UserRole.Admin)
   async update(@Body() body: UpdateUserDto) {
-    console.log(body);
     throw new HttpException('233', 403);
     return '233';
   }
