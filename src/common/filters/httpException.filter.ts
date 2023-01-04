@@ -18,11 +18,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // TODO: 搞搞 errorMsg 合并 error + message
     response.status(status).json({
-      status: status,
+      code: -1, // 这里的 code 应该是自定义的
+      data: {
+        status: status,
+        path: url,
+        method,
+      },
       errorMsg,
-      path: url,
-      method,
-      timestamp: new Date().toISOString(),
     });
   }
 }

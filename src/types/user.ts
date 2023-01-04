@@ -29,6 +29,7 @@ export type User = {
   username: UserName;
   email: Email;
   password?: PassWord;
+  role?: UserRole;
   state?: UserState;
   phone?: Phone;
   avator?: Avator;
