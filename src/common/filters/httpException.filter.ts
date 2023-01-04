@@ -14,7 +14,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = context.getResponse();
     const { url, method } = request;
     const status = exception.status;
-    const errorMsg = exception.response || '请求出错';
+    const { response: exceptionResponse } = exception;
+
+    const errorMsg =
+      typeof exceptionResponse === 'string'
+        ? exceptionResponse
+        : exceptionResponse?.error + ': ' + exceptionResponse?.message;
 
     // TODO: 搞搞 errorMsg 合并 error + message
     response.status(status).json({

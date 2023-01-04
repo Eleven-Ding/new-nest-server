@@ -21,7 +21,7 @@ export class RolesGuard implements CanActivate {
     }
     const { role } = user;
     // 因为比较多的接口都是普通用户能够访问的，所以这里就简化了，没有使用 @Roles 描述的接口都是用户可以访问的
-    if (!roles || roles.length === 0) {
+    if (!roles || roles.length === 0 || role === UserRole.Admin) {
       return true;
     }
     return roles.includes(role);

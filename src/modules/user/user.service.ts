@@ -1,6 +1,12 @@
+import { FindAllDto } from './dto/findAll.dto';
 import { Email } from 'src/types';
 import { SmtpService } from './../smtp/smtp.service';
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
@@ -62,5 +68,25 @@ export class UserService {
       throw new NotFoundException(`邮箱为[${email}]的用户不存在,`);
     }
     return user;
+  }
+
+  async findAll(params: FindAllDto) {
+    try {
+      const { limit, offset } = params;
+      const [list, count] = await this.userEntity.findAndCount({
+        skip: offset * limit,
+        take: limit,
+      });
+      return createResponse('获取分页用户成功', {
+        list,
+        count,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error, '获取用户分页失败');
+    }
+  }
+
+  async updateUser() {
+    throw new HttpException('233', 403);
   }
 }
