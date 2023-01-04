@@ -1,5 +1,6 @@
+import { Email } from 'src/types';
 import { SmtpService } from './../smtp/smtp.service';
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
@@ -48,5 +49,18 @@ export class UserService {
       );
     }
     return createResponse('用户注册成功');
+  }
+
+  async findOne(email: Email) {
+    const user = await this.userEntity.findOne({
+      where: {
+        email,
+      },
+      select: ['password', 'email', 'userId', 'role'],
+    });
+    if (!user) {
+      throw new NotFoundException(`邮箱为[${email}]的用户不存在,`);
+    }
+    return user;
   }
 }

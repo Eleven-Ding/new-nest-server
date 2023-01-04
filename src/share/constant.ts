@@ -1,7 +1,7 @@
 import { Avator } from 'src/types';
-// 用户默认头像
+
 export const DEFAULT_USER_AVATOR: Avator =
-  'https://blog-1303885568.cos.ap-chengdu.myqcloud.com/useImg/avat.jpg';
+  'https://blog-1303885568.cos.ap-chengdu.myqcloud.com/useImg/avat.jpg'; // 默认用户头像，后期可更改
 
 export const VERIFY_CODE_EXP_TIME = 180; // 发送的验证码 3 分钟内过期
 

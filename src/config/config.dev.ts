@@ -18,4 +18,8 @@ export default () => ({
       port: 6379,
     },
   },
+  jwt: {
+    secret: 'elevendingshiyi',
+    expiresIn: '7d',
+  },
 });

@@ -1,3 +1,5 @@
+import { JwtService } from '@nestjs/jwt';
+import { AuthService } from './../auth/auth.service';
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
@@ -8,6 +10,7 @@ import { SmtpService } from '../smtp/smtp.service';
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity])],
   controllers: [UserController],
-  providers: [UserService, SmtpService],
+  providers: [UserService, SmtpService, AuthService, JwtService],
+  exports: [UserService],
 })
 export class UserModule {}

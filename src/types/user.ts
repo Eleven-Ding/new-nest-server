@@ -27,11 +27,11 @@ export enum UserRole { // 用户角色
 export type User = {
   userId: UserId;
   username: UserName;
+  email: Email;
   password?: PassWord;
   state?: UserState;
-  email: Email;
-  phone: Phone;
-  avator: Avator;
+  phone?: Phone;
+  avator?: Avator;
   createTime?: EntityCreateTime;
   updateTime?: EntityUpdateTime;
 };
