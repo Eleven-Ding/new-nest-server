@@ -14,11 +14,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = context.getResponse();
     const { url, method } = request;
     const status = exception.status;
-    const msg = exception.response || '请求出错';
+    const errorMsg = exception.response || '请求出错';
 
     response.status(status).json({
       status: status,
-      msg,
+      errorMsg,
       path: url,
       method,
       timestamp: new Date().toISOString(),

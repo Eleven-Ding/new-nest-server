@@ -27,7 +27,6 @@ export class UserService {
     // 3. 存储
     try {
       await this.userEntity.save({ ...registerDto, password: hashPassword });
-      throw new Error('2333');
     } catch (error) {
       throw new HttpException((error as Error).message, 500);
     }
