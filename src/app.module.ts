@@ -7,11 +7,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import { config } from './config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from './modules/user/entity/user.entity';
+import { SmtpModule } from './modules/smtp/smtp.module';
 
 @Module({
   imports: [
     UserModule,
     AuthModule,
+    SmtpModule,
     ConfigModule.forRoot({
       load: [config],
       isGlobal: true,
