@@ -4,6 +4,7 @@ import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { cryption } from 'src/share/encryption';
+import { createResponse } from 'src/common/transform/response.transform';
 
 @Injectable()
 export class UserService {
@@ -24,14 +25,12 @@ export class UserService {
     // 2. 密码加密
     const hashPassword = await cryption(registerDto.password);
     // 3. 存储
-
     try {
       await this.userEntity.save({ ...registerDto, password: hashPassword });
+      throw new Error('2333');
     } catch (error) {
       throw new HttpException((error as Error).message, 500);
     }
-    return {
-      msg: '注册成功',
-    };
+    return createResponse('用户注册成功');
   }
 }
