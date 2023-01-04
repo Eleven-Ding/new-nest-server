@@ -47,8 +47,11 @@ export class SmtpService {
   // 校验验证码
   async verifyCode4Email(email: Email, code: string): Promise<boolean> {
     const redisCode = await this.redis.get(email);
-    console.log(email, code, redisCode);
-    return redisCode === code;
+    const equal = redisCode === code;
+    if (equal) {
+      this.redis.del(email);
+    }
+    return equal;
   }
 
   sendMail(emails: Email[], template: string, subject: string) {
