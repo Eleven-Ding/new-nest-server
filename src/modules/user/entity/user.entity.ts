@@ -1,11 +1,10 @@
-import { Band } from './../../../types/user';
+import { UserState } from './../../../types/user';
 import { EntityUpdateTime, EntityCreateTime } from './../../../types/common';
 // 创建用户表
 import {
   Email,
   PassWord,
   Phone,
-  Salt,
   UserId,
   UserName,
   Avator,
@@ -28,7 +27,7 @@ export class UserEntity {
   @Column({ length: 20 })
   username: UserName;
 
-  @Column({ length: 20, select: false })
+  @Column({ select: false })
   password: PassWord;
 
   @Column({ length: 20 })
@@ -40,8 +39,8 @@ export class UserEntity {
   @Column({ default: DEFAULT_USER_AVATOR })
   avator: Avator;
 
-  @Column({ type: 'boolean', default: false })
-  isBand: Band;
+  @Column({ type: 'boolean', default: UserState.Normal })
+  state: UserState;
 
   @Column({ default: UserRole.User }) // 默认是普通用户
   role: UserRole;

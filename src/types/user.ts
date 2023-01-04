@@ -11,7 +11,10 @@ export type UserId = number; // 用户Id
 
 export type Avator = string; // 用户头像
 
-export type Salt = string; // 随机盐，用于加密
+export enum UserState {
+  Normal,
+  Band,
+}
 
 export type Band = boolean; // 用户活动开关
 
@@ -25,11 +28,10 @@ export type User = {
   userId: UserId;
   username: UserName;
   password?: PassWord;
-  salt?: Salt;
+  state?: UserState;
   email: Email;
   phone: Phone;
   avator: Avator;
-  isBand: Band;
   createTime?: EntityCreateTime;
   updateTime?: EntityUpdateTime;
 };

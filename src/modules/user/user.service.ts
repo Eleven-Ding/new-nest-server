@@ -12,7 +12,7 @@ export class UserService {
 
   async register(registerDto: RegisterDto) {
     // 1. 查询该邮箱是否存在
-    const user = this.userEntity.findOne({
+    const user = await this.userEntity.findOne({
       where: {
         email: registerDto.email,
       },
@@ -20,10 +20,18 @@ export class UserService {
     if (user) {
       throw new HttpException('该邮箱已被注册! 请重新输入', 401);
     }
+    console.log(user);
     // 2. 密码加密
     const hashPassword = await cryption(registerDto.password);
-
     // 3. 存储
-    return this.userEntity.save({ ...registerDto, password: hashPassword });
+
+    try {
+      await this.userEntity.save({ ...registerDto, password: hashPassword });
+    } catch (error) {
+      throw new HttpException((error as Error).message, 500);
+    }
+    return {
+      msg: '注册成功',
+    };
   }
 }
