@@ -8,6 +8,9 @@ export class UserController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
+    // 1. 短信校验服务
+
+    // 2. 注册服务
     return this.userService.register(registerDto);
   }
 }

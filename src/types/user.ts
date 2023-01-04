@@ -15,6 +15,11 @@ export type Salt = string; // 随机盐，用于加密
 
 export type Band = boolean; // 用户活动开关
 
+export enum UserRole { // 用户角色
+  User,
+  Admin,
+}
+
 // User 类型
 export type User = {
   userId: UserId;

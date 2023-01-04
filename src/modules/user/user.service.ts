@@ -3,6 +3,7 @@ import { RegisterDto } from './dto/register.dto';
 import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { cryption } from 'src/share/encryption';
 
 @Injectable()
 export class UserService {
@@ -20,8 +21,9 @@ export class UserService {
       throw new HttpException('该邮箱已被注册! 请重新输入', 401);
     }
     // 2. 密码加密
+    const hashPassword = await cryption(registerDto.password);
 
     // 3. 存储
-    return this.userEntity.save(registerDto);
+    return this.userEntity.save({ ...registerDto, password: hashPassword });
   }
 }

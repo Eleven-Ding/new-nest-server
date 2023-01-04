@@ -13,4 +13,7 @@ export class RegisterDto {
   @Length(6, 20)
   @IsString()
   readonly email!: Email;
+
+  @Length(4)
+  code: string;
 }

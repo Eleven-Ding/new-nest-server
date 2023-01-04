@@ -9,6 +9,7 @@ import {
   UserId,
   UserName,
   Avator,
+  UserRole,
 } from 'src/types';
 import {
   Entity,
@@ -33,11 +34,8 @@ export class UserEntity {
   @Column({ length: 20 })
   email: Email;
 
-  @Column({ length: 11 })
+  @Column({ length: 11, default: '' })
   phone: Phone;
-
-  @Column({ length: 8, select: false })
-  salt: Salt;
 
   @Column({ default: DEFAULT_USER_AVATOR })
   avator: Avator;
@@ -45,6 +43,8 @@ export class UserEntity {
   @Column({ type: 'boolean', default: false })
   isBand: Band;
 
+  @Column({ default: UserRole.User }) // 默认是普通用户
+  role: UserRole;
   @CreateDateColumn()
   createTime: EntityCreateTime;
 
