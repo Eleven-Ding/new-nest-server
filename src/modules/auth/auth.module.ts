@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guard/jwt.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guard/roles.guard';
+import { PoliciesGuard } from '../casl/police.guard';
 
 @Module({
   providers: [

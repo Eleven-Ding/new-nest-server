@@ -9,6 +9,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from './modules/user/entity/user.entity';
 import { SmtpModule } from './modules/smtp/smtp.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { CaslModule } from './modules/casl/casl.module';
+import { APP_GUARD } from '@nestjs/core';
+import { PoliciesGuard } from './modules/casl/police.guard';
 
 @Module({
   imports: [

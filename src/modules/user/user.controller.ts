@@ -9,7 +9,6 @@ import {
   Get,
   Query,
   Put,
-  HttpException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LocalStrategyGuard } from '../auth/guard/local.guard';
@@ -18,6 +17,8 @@ import { Roles } from 'src/common/decorates/Roles';
 import { UserRole } from 'src/types';
 import { FindAllDto } from './dto/findAll.dto';
 import { UpdateUserDto } from './dto/update.dto';
+import { CheckPolicies, PoliciesGuard } from '../casl/police.guard';
+import { updateUserPolicyHandler } from './police/update.police';
 
 @Controller('user')
 export class UserController {
@@ -45,18 +46,11 @@ export class UserController {
     return this.userService.findAll(query);
   }
 
-  // 用户使用
+  // 更新用户数据
   @Post('update')
-  async updateSelf() {
-    // CABL
-    return 233;
-  }
-
-  // 管理员后台使用
-  @Put('update')
-  @Roles(UserRole.Admin)
+  @UseGuards(PoliciesGuard)
+  @CheckPolicies(updateUserPolicyHandler)
   async update(@Body() body: UpdateUserDto) {
-    throw new HttpException('233', 403);
-    return '233';
+    return this.userService.updateUser(body);
   }
 }

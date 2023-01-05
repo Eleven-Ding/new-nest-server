@@ -1,3 +1,4 @@
+import { UpdateUserDto } from './dto/update.dto';
 import { FindAllDto } from './dto/findAll.dto';
 import { Email } from 'src/types';
 import { SmtpService } from './../smtp/smtp.service';
@@ -86,7 +87,30 @@ export class UserService {
     }
   }
 
-  async updateUser() {
-    throw new HttpException('233', 403);
+  async updateUser(body: UpdateUserDto) {
+    //
+    const { email, userId, ...userInfo } = body;
+    for (const key in userInfo) {
+      if (!userInfo[key]) {
+        delete userInfo[key];
+      }
+    }
+    const oldUser = await this.findOne(email);
+    if (oldUser.userId !== Number(userId)) {
+      throw new HttpException('邮箱和Id不匹配', 401);
+    }
+    try {
+      await this.userEntity.save({
+        ...oldUser,
+        ...userInfo,
+      });
+      return createResponse('更新用户信息成功');
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `用户信息更新失败，errorMsg = ${(error as Error).message}`,
+      );
+    }
   }
+
+  // async
 }
