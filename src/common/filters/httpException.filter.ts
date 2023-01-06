@@ -15,13 +15,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const { url, method } = request;
     const status = exception.status;
     const { response: exceptionResponse } = exception;
-
     const errorMsg =
       typeof exceptionResponse === 'string'
         ? exceptionResponse
-        : exceptionResponse?.error + ': ' + exceptionResponse?.message;
+        : `${exceptionResponse?.error} -> ${exception.name} ${exceptionResponse?.message}`;
 
-    // TODO: 搞搞 errorMsg 合并 error + message
     response.status(status).json({
       code: -1, // 这里的 code 应该是自定义的
       data: {
