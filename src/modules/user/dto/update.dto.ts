@@ -7,7 +7,4 @@ import { Email } from 'src/types';
 export class UpdateUserDto extends PartialType(UserEntity) {
   @IsNotEmpty()
   userId: number;
-
-  @IsNotEmpty()
-  email: Email;
 }

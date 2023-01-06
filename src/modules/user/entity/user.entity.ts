@@ -39,11 +39,12 @@ export class UserEntity {
   @Column({ default: DEFAULT_USER_AVATOR })
   avator: Avator;
 
-  @Column({ type: 'boolean', default: UserState.Normal })
+  @Column({ type: 'tinyint', default: UserState.Normal })
   state: UserState;
 
   @Column({ default: UserRole.User }) // 默认是普通用户
   role: UserRole;
+
   @CreateDateColumn()
   createTime: EntityCreateTime;
 

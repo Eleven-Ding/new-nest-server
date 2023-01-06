@@ -1,6 +1,6 @@
 import { UpdateUserDto } from './dto/update.dto';
 import { FindAllDto } from './dto/findAll.dto';
-import { Email } from 'src/types';
+import { Email, UserId } from 'src/types';
 import { SmtpService } from './../smtp/smtp.service';
 import {
   Injectable,
@@ -58,15 +58,21 @@ export class UserService {
     return createResponse('用户注册成功');
   }
 
-  async findOne(email: Email) {
+  async findOne(userPrimaryKey: Email | UserId) {
+    let selectKey = 'userId';
+    if (typeof userPrimaryKey === 'string') {
+      selectKey = 'email';
+    }
     const user = await this.userEntity.findOne({
       where: {
-        email,
+        [selectKey]: userPrimaryKey,
       },
       select: ['password', 'email', 'userId', 'role'],
     });
     if (!user) {
-      throw new NotFoundException(`邮箱为[${email}]的用户不存在,`);
+      throw new NotFoundException(
+        `${selectKey} = ${userPrimaryKey} 的用户不存在,`,
+      );
     }
     return user;
   }
@@ -87,22 +93,14 @@ export class UserService {
     }
   }
 
-  async updateUser(body: UpdateUserDto) {
-    //
-    const { email, userId, ...userInfo } = body;
-    for (const key in userInfo) {
-      if (!userInfo[key]) {
-        delete userInfo[key];
-      }
-    }
-    const oldUser = await this.findOne(email);
-    if (oldUser.userId !== Number(userId)) {
-      throw new HttpException('邮箱和Id不匹配', 401);
-    }
+  async updateUser(canUpdateBody: UpdateUserDto, userWillUpdate: UserEntity) {
+    // 将不可更新的信息取出, 修改密码，重新绑定邮箱需要开另外的接口
+    const { userId, password, ...updateUserParam } = canUpdateBody;
+
     try {
       await this.userEntity.save({
-        ...oldUser,
-        ...userInfo,
+        ...userWillUpdate,
+        ...updateUserParam,
       });
       return createResponse('更新用户信息成功');
     } catch (error) {
