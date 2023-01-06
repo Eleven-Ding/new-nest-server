@@ -8,10 +8,6 @@ export default () => ({
     database: 'blog',
     synchronize: true,
   },
-  smtp: {
-    user: '1559298665@qq.com',
-    pass: 'escsvblwornshdai',
-  },
   redis: {
     config: {
       host: 'localhost',

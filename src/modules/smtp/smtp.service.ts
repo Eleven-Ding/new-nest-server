@@ -8,6 +8,7 @@ import { SendCodeDto } from './dto/sendCode.dto';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { VERIFY_CODE_EXP_TIME } from 'src/share/constant';
+import { KmsService } from '../kms/kms.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const nodemailer = require('nodemailer');
@@ -16,6 +17,7 @@ const nodemailer = require('nodemailer');
 export class SmtpService {
   constructor(
     private configService: ConfigService,
+    private kmsService: KmsService,
     @InjectRedis() private readonly redis: Redis,
   ) {
     this.redis.get('1964845235@qq.com').then((res) => {
@@ -55,12 +57,17 @@ export class SmtpService {
   }
 
   sendMail(emails: Email[], template: string, subject: string) {
-    return new Promise((resolve, reject) => {
+    // 每次发送邮件都去数据库拿一次数据，比较费时，可以考虑拿一次就放在 redis 中
+    return new Promise(async (resolve, reject) => {
+      const smtpKeyConfig: any = await this.kmsService.getSmtpKeyConfig();
+      if (!smtpKeyConfig) {
+        reject('密钥获取失败');
+      }
       const transporter = nodemailer.createTransport({
         service: 'qq',
         port: 465,
         secureConnection: true,
-        auth: this.configService.get('smtp'),
+        auth: smtpKeyConfig,
       });
       const mailOptions = {
         from: 'ElevenDing <1559298665@qq.com>', // 发件地址

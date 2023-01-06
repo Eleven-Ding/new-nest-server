@@ -36,5 +36,3 @@ lerna-debug.log*
 
 # Production
 /src/config/config.prod.ts
-
-/src/config/config.dev.ts

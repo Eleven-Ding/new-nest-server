@@ -1,3 +1,4 @@
+import { KmsEntity } from './modules/kms/entity/kms.entity';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,9 +10,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from './modules/user/entity/user.entity';
 import { SmtpModule } from './modules/smtp/smtp.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { CaslModule } from './modules/casl/casl.module';
-import { APP_GUARD } from '@nestjs/core';
-import { PoliciesGuard } from './modules/casl/police.guard';
 
 @Module({
   imports: [
@@ -33,7 +31,7 @@ import { PoliciesGuard } from './modules/casl/police.guard';
       useFactory: (configService: ConfigService) => {
         return {
           ...configService.get('typeorm'),
-          entities: [UserEntity],
+          entities: [UserEntity, KmsEntity],
           charset: 'utf8mb4',
           timezone: '+08:00', //服务器上配置的时区
         };

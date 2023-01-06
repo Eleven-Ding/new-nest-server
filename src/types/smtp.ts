@@ -3,10 +3,8 @@ import { Email } from './user';
 export type MailTemplate = string;
 
 export type SmtpConfig = {
-  auth: {
-    user: string;
-    pass: string;
-  };
+  user: string;
+  pass: string;
 };
 
 export interface MailerProps {
