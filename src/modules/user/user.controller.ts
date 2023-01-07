@@ -65,7 +65,7 @@ export class UserController {
   async update(@Body() body: UpdateUserDto, @Request() req) {
     const user = req.user as User;
     const ability = this.caslAbilityFactory.createForUser(user);
-    const userWillUpdate = await this.userService.findOne(Number(body.userId));
+    const userWillUpdate = await this.userService.findOne(body.userId);
     if (!userWillUpdate) {
       return createResponse({
         msg: '该用户不存在',
@@ -86,7 +86,7 @@ export class UserController {
       password: oldPassword,
       ...otherUserInfo
     } = info4UpdateUser;
-    switch (Number(opType)) {
+    switch (opType) {
       case UpdateUserOptType.Normal:
         const canUpdateBody =
           user.role === UserRole.Admin ? body : otherUserInfo;

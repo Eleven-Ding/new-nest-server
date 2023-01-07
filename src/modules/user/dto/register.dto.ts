@@ -1,6 +1,6 @@
 import { UserName, PassWord, Email } from 'src/types';
 import { IsString, Length } from 'class-validator';
-
+import { DETAULT_CODE_COUNT } from 'src/share/constant';
 export class RegisterDto {
   @IsString()
   @Length(3, 20)
@@ -14,6 +14,6 @@ export class RegisterDto {
   @IsString()
   readonly email!: Email;
 
-  @Length(4)
+  @Length(DETAULT_CODE_COUNT)
   readonly code: string;
 }

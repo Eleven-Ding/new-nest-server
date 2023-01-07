@@ -2,11 +2,11 @@ import { PassWord } from 'src/types';
 import { UpdateUserOptType } from './../../../types/user';
 import { PartialType } from '@nestjs/mapped-types';
 import { UserEntity } from '../entity/user.entity';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator';
 
-// TODO: 为什么IsNumber 不起作用
 export class UpdateUserDto extends PartialType(UserEntity) {
   @IsNotEmpty()
+  @IsPositive()
   readonly userId: number;
 
   @IsNotEmpty({

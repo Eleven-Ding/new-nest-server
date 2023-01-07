@@ -132,6 +132,9 @@ export class UserService {
     oldPassword: PassWord;
     newPassword: PassWord;
   }) {
+    if (!oldPassword || !newPassword) {
+      throw new HttpException('参数不完整', 401);
+    }
     if (oldPassword === newPassword) {
       return createResponse({
         msg: '修改前后密码不能相同',
@@ -170,6 +173,9 @@ export class UserService {
     code: string;
     newPassword: PassWord;
   }) {
+    if (!code || !newPassword) {
+      throw new HttpException('参数不完整', 401);
+    }
     // 验证码是否是否正确
     const equal = await this.smtpService.verifyCode4Email(
       userWillUpdate.email,
@@ -192,6 +198,5 @@ export class UserService {
         msg: `密码找回失败, errorMsg=${(error as Error).message}`,
       });
     }
-    //
   }
 }

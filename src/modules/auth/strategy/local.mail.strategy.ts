@@ -12,7 +12,7 @@ export class LocalEmailAndCodeStrategy extends PassportStrategy(
   constructor(private authService: AuthService) {
     super({
       usernameField: 'email',
-      passwordFiled: 'code',
+      passwordField: 'code',
     });
   }
 
