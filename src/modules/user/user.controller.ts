@@ -54,10 +54,10 @@ export class UserController {
   }
 
   // 分页获取用户数据
-  @Get('/all')
+  @Post('/all')
   @Roles(UserRole.Admin)
-  async findAll(@Query() query: FindAllDto) {
-    return this.userService.findAll(query);
+  async findAll(@Body() body: FindAllDto) {
+    return this.userService.findAll(body);
   }
 
   // 更新用户数据, 包括更新密码，通过opType来判断
@@ -72,7 +72,7 @@ export class UserController {
       });
     }
     if (!ability.can(Action.Update, userWillUpdate)) {
-      throw new NoPermissionException('您无权更新他人信息');
+      throw new NoPermissionException('您无权完成该操作');
     }
     const { opType, code, ...info4UpdateUser } = body;
     const {

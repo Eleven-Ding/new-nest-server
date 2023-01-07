@@ -1,5 +1,5 @@
 import { UserEntity } from '../user/entity/user.entity';
-import { User, UserRole } from 'src/types';
+import { User, UserRole, UserState } from 'src/types';
 import {
   Ability,
   AbilityBuilder,
@@ -29,12 +29,13 @@ export class CaslAbilityFactory {
     >(Ability as AbilityClass<AppAbility>);
 
     if (user.role === UserRole.Admin) {
-      can(Action.Manage, 'all'); // read-write access to everything
-    } else {
-      can(Action.Read, 'all'); // read-only access to everything
+      can(Action.Manage, 'all'); // 管理员有所有权限
     }
     // 用户只能更新自己的信息
-    can(Action.Update, UserEntity, { userId: user.userId });
+    can(Action.Update, UserEntity, {
+      userId: user.userId,
+      state: UserState.Normal,
+    });
 
     return build({
       detectSubjectType: (item) =>

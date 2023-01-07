@@ -72,7 +72,7 @@ export class UserService {
       where: {
         [selectKey]: userPrimaryKey,
       },
-      select: ['password', 'email', 'userId', 'role'],
+      select: ['password', 'email', 'userId', 'role', 'state'],
     });
     if (!user) {
       throw new NotFoundException(
