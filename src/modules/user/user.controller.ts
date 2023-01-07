@@ -20,6 +20,7 @@ import { FindAllDto } from './dto/findAll.dto';
 import { UpdateUserDto } from './dto/update.dto';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { NoPermissionException } from 'src/common/exceptions/NoPermissionException';
+import { LoginEmailGuard } from '../auth/guard/local.email.guard';
 
 @Controller('user')
 export class UserController {
@@ -29,12 +30,13 @@ export class UserController {
     private caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
-  @Post('register')
+  @Post('/register')
   @isPublic()
   async register(@Body() registerDto: RegisterDto) {
     return this.userService.register(registerDto);
   }
 
+  // 邮箱 + 密码登录
   @Post('/login')
   @isPublic()
   @UseGuards(LocalStrategyGuard)
@@ -42,8 +44,16 @@ export class UserController {
     return this.authService.logIn(req.user);
   }
 
-  // 分野获取数据
-  @Get('/findAll')
+  // 邮箱 + 验证码登录，不一定有人一直都记得密码，所以新增这种邮箱 + 验证码登录的形式
+  @Post('/loginWithEmail')
+  @isPublic()
+  @UseGuards(LoginEmailGuard)
+  async logInWithEmail(@Request() req) {
+    return this.authService.logIn(req.user);
+  }
+
+  // 分页获取用户数据
+  @Get('/all')
   @Roles(UserRole.Admin)
   async findAll(@Query() query: FindAllDto) {
     return this.userService.findAll(query);

@@ -1,3 +1,5 @@
+import { LocalEmailAndCodeStrategy } from './strategy/local.mail.strategy';
+import { SmtpService } from './../smtp/smtp.service';
 import { JwtStratege } from './strategy/jwt.stratege';
 import { JwtConfig } from 'src/types/jwt';
 import { UserModule } from './../user/user.module';
@@ -10,13 +12,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guard/jwt.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guard/roles.guard';
-import { PoliciesGuard } from '../casl/police.guard';
 
 @Module({
   providers: [
     AuthService,
     LocalStrategy,
     JwtStratege,
+    LocalEmailAndCodeStrategy,
+    SmtpService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
