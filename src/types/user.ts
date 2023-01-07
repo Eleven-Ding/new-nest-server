@@ -11,9 +11,16 @@ export type UserId = number; // 用户Id
 
 export type Avator = string; // 用户头像
 
-export enum UserState {
-  Normal,
-  Band,
+export enum UserState { // 用户状态
+  Normal, // 正常
+  Band, // 封禁
+  Delete, // 注销、删除
+}
+
+// 更新用户信息时的操作类型
+export enum UpdateUserOptType {
+  Normal, // 更新除开 password，email，phone 之外的数据
+  Password, // 更新密码
 }
 
 export type Band = boolean; // 用户活动开关

@@ -6,7 +6,15 @@ import {
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
 
-export const createResponse = (msg?: string, data?: any, code?: number) => {
+export const createResponse = ({
+  msg,
+  code,
+  data,
+}: {
+  msg?: string;
+  code?: number;
+  data?: any;
+}) => {
   return {
     data,
     msg,

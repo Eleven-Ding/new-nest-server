@@ -36,7 +36,9 @@ export class SmtpService {
       );
       // 缓存 code
       await this.redis.set(email, code, 'EX', VERIFY_CODE_EXP_TIME);
-      return createResponse('验证码发送成功，请注意查收');
+      return createResponse({
+        msg: '验证码发送成功，请注意查收',
+      });
     } catch (error) {
       throw new HttpException(
         `验证码发送失败，请练习管理员或者稍后重试, 这是你可以看的错误信息 ${

@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello() {
-    return createResponse('Hello Nest');
+    return createResponse({
+      msg: 'Hello Nest',
+    });
   }
 }

@@ -1,3 +1,4 @@
+import { UpdateUserOptType, User, UserRole } from './../../types';
 import { createResponse } from 'src/common/transform/response.transform';
 import { Action } from 'src/modules/casl/casl-ability.factory';
 import { AuthService } from './../auth/auth.service';
@@ -10,12 +11,12 @@ import {
   Request,
   Get,
   Query,
+  HttpException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LocalStrategyGuard } from '../auth/guard/local.guard';
 import { isPublic } from 'src/common/decorates/isPublic';
 import { Roles } from 'src/common/decorates/Roles';
-import { User, UserRole } from 'src/types';
 import { FindAllDto } from './dto/findAll.dto';
 import { UpdateUserDto } from './dto/update.dto';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
@@ -59,19 +60,21 @@ export class UserController {
     return this.userService.findAll(query);
   }
 
-  // 更新用户数据
+  // 更新用户数据, 包括更新密码，通过type来判断
   @Post('update')
   async update(@Body() body: UpdateUserDto, @Request() req) {
     const user = req.user as User;
     const ability = this.caslAbilityFactory.createForUser(user);
     const userWillUpdate = await this.userService.findOne(Number(body.userId));
     if (!userWillUpdate) {
-      return createResponse('该用户不存在');
+      return createResponse({
+        msg: '该用户不存在',
+      });
     }
-    if (!ability.can(Action.Update, undefined)) {
+    if (!ability.can(Action.Update, userWillUpdate)) {
       throw new NoPermissionException('您无权更新他人信息');
     }
-    // 一些字段只有管理员能够更新，用户不能刚更新
+    const { opType, ...info4UpdateUser } = body;
     const {
       role,
       phone,
@@ -79,9 +82,23 @@ export class UserController {
       email,
       createTime,
       updateTime,
-      ...updateUserParam
-    } = body;
-    const canUpdateBody = user.role === UserRole.Admin ? body : updateUserParam;
-    return this.userService.updateUser(canUpdateBody, userWillUpdate);
+      newPassword,
+      password: oldPassword,
+      ...otherUserInfo
+    } = info4UpdateUser;
+    switch (Number(opType)) {
+      case UpdateUserOptType.Normal:
+        const canUpdateBody =
+          user.role === UserRole.Admin ? body : otherUserInfo;
+        return this.userService.updateUser(canUpdateBody, userWillUpdate);
+      case UpdateUserOptType.Password:
+        return this.userService.updatePassword({
+          userWillUpdate,
+          oldPassword,
+          newPassword,
+        });
+      default:
+        throw new HttpException('操作类型不存在', 401);
+    }
   }
 }

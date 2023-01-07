@@ -1,6 +1,7 @@
+import { encryption } from './../../share/encryption';
 import { UpdateUserDto } from './dto/update.dto';
 import { FindAllDto } from './dto/findAll.dto';
-import { Email, UserId } from 'src/types';
+import { Email, UserId, PassWord } from 'src/types';
 import { SmtpService } from './../smtp/smtp.service';
 import {
   Injectable,
@@ -31,7 +32,9 @@ export class UserService {
           registerDto.code,
         ))
       ) {
-        return createResponse('验证码校验错误');
+        return createResponse({
+          msg: '验证码校验错误',
+        });
       }
 
       // 2. 查询该邮箱是否存在
@@ -55,7 +58,9 @@ export class UserService {
         400,
       );
     }
-    return createResponse('用户注册成功');
+    return createResponse({
+      msg: '用户注册成功',
+    });
   }
 
   async findOne(userPrimaryKey: Email | UserId) {
@@ -84,25 +89,33 @@ export class UserService {
         skip: offset * limit,
         take: limit,
       });
-      return createResponse('获取分页用户成功', {
-        list,
-        count,
+      return createResponse({
+        msg: '获取分页用户成功',
+        data: {
+          list,
+          count,
+        },
       });
     } catch (error) {
       throw new InternalServerErrorException(error, '获取用户分页失败');
     }
   }
 
-  async updateUser(canUpdateBody: UpdateUserDto, userWillUpdate: UserEntity) {
+  async updateUser(
+    canUpdateBody: Omit<UpdateUserDto, 'opType' | 'newPassword'>,
+    userWillUpdate: UserEntity,
+  ) {
     // 将不可更新的信息取出, 修改密码，重新绑定邮箱需要开另外的接口
-    const { userId, password, ...updateUserParam } = canUpdateBody;
+    const { userId, ...updateUserParam } = canUpdateBody;
 
     try {
       await this.userEntity.save({
         ...userWillUpdate,
         ...updateUserParam,
       });
-      return createResponse('更新用户信息成功');
+      return createResponse({
+        msg: '更新用户信息成功',
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         `用户信息更新失败，errorMsg = ${(error as Error).message}`,
@@ -110,5 +123,40 @@ export class UserService {
     }
   }
 
-  // async
+  async updatePassword({
+    userWillUpdate,
+    oldPassword,
+    newPassword,
+  }: {
+    userWillUpdate: UserEntity;
+    oldPassword: PassWord;
+    newPassword: PassWord;
+  }) {
+    if (oldPassword === newPassword) {
+      return createResponse({
+        msg: '修改前后密码不能相同',
+        code: -1,
+      });
+    }
+    if (!encryption(oldPassword, userWillUpdate.password)) {
+      return createResponse({
+        msg: '旧密码不正确',
+        code: -1,
+      });
+    }
+    const newHashPassword = await cryption(newPassword);
+    try {
+      await this.userEntity.save({
+        ...userWillUpdate,
+        password: newHashPassword,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `密码修改失败: errorMsg=${(error as Error).message}`,
+      );
+    }
+    return createResponse({
+      msg: '密码修改成功',
+    });
+  }
 }

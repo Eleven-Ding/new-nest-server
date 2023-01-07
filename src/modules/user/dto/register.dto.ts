@@ -15,5 +15,5 @@ export class RegisterDto {
   readonly email!: Email;
 
   @Length(4)
-  code: string;
+  readonly code: string;
 }

@@ -40,10 +40,13 @@ export class AuthService {
   //
   async logIn(payload: User) {
     // 签发 token
-    return createResponse('登录成功', {
-      access_token: this.jwtService.sign(payload, {
-        privateKey: (this.configService.get('jwt') as JwtConfig).secret,
-      }),
+    return createResponse({
+      msg: '登录成功',
+      data: {
+        access_token: this.jwtService.sign(payload, {
+          privateKey: (this.configService.get('jwt') as JwtConfig).secret,
+        }),
+      },
     });
   }
 }
