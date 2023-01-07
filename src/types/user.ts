@@ -21,6 +21,7 @@ export enum UserState { // 用户状态
 export enum UpdateUserOptType {
   Normal, // 更新除开 password，email，phone 之外的数据
   Password, // 更新密码
+  RetrievePassword, // 找回密码
 }
 
 export type Band = boolean; // 用户活动开关

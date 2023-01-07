@@ -16,4 +16,7 @@ export class UpdateUserDto extends PartialType(UserEntity) {
 
   @IsOptional()
   readonly newPassword: PassWord;
+
+  @IsOptional()
+  readonly code: string;
 }

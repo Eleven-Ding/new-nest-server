@@ -102,7 +102,7 @@ export class UserService {
   }
 
   async updateUser(
-    canUpdateBody: Omit<UpdateUserDto, 'opType' | 'newPassword'>,
+    canUpdateBody: Omit<UpdateUserDto, 'opType' | 'newPassword' | 'code'>,
     userWillUpdate: UserEntity,
   ) {
     // 将不可更新的信息取出, 修改密码，重新绑定邮箱需要开另外的接口
@@ -158,5 +158,40 @@ export class UserService {
     return createResponse({
       msg: '密码修改成功',
     });
+  }
+
+  // 通过邮箱验证码找回密码
+  async retrievePassword({
+    userWillUpdate,
+    code,
+    newPassword,
+  }: {
+    userWillUpdate: UserEntity;
+    code: string;
+    newPassword: PassWord;
+  }) {
+    // 验证码是否是否正确
+    const equal = await this.smtpService.verifyCode4Email(
+      userWillUpdate.email,
+      code,
+    );
+    if (!equal) {
+      throw new HttpException('验证码错误', 401);
+    }
+    const newHashPassword = await cryption(newPassword);
+    try {
+      await this.userEntity.save({
+        ...userWillUpdate,
+        password: newHashPassword,
+      });
+      return createResponse({
+        msg: '密码修改成功，请妥善保管',
+      });
+    } catch (error) {
+      return createResponse({
+        msg: `密码找回失败, errorMsg=${(error as Error).message}`,
+      });
+    }
+    //
   }
 }

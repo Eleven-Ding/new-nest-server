@@ -60,7 +60,7 @@ export class UserController {
     return this.userService.findAll(query);
   }
 
-  // 更新用户数据, 包括更新密码，通过type来判断
+  // 更新用户数据, 包括更新密码，通过opType来判断
   @Post('update')
   async update(@Body() body: UpdateUserDto, @Request() req) {
     const user = req.user as User;
@@ -74,7 +74,7 @@ export class UserController {
     if (!ability.can(Action.Update, userWillUpdate)) {
       throw new NoPermissionException('您无权更新他人信息');
     }
-    const { opType, ...info4UpdateUser } = body;
+    const { opType, code, ...info4UpdateUser } = body;
     const {
       role,
       phone,
@@ -95,6 +95,12 @@ export class UserController {
         return this.userService.updatePassword({
           userWillUpdate,
           oldPassword,
+          newPassword,
+        });
+      case UpdateUserOptType.RetrievePassword:
+        return this.userService.retrievePassword({
+          userWillUpdate,
+          code,
           newPassword,
         });
       default:
