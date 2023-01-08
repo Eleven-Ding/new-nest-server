@@ -71,12 +71,14 @@ export class MyLoggerService extends ConsoleLogger implements LoggerService {
     this.manuallySave();
     super.debug(logContent, ...rest);
   }
-  metric(metricKey: MetricKey, metricValue: MetricValue): Metric {
-    return {
+  metric(metricKey: MetricKey, metricValue: MetricValue) {
+    this.metricList.push({
       metricKey,
       metricValue,
       metricTime: Date.now(),
-    };
+    });
+    this.manuallySave();
+    super.verbose(`${metricKey} = ${metricValue}`, 'Metric');
   }
 
   createLogData(
@@ -100,13 +102,13 @@ export class MyLoggerService extends ConsoleLogger implements LoggerService {
       !this.isCustomLogListInSaveProgress &&
       this.customLogList.length >= MAX_LOG_EXP_COUNT
     ) {
-      await this.save(SaveLogType.CustomLog);
+      await this.saveCustomLogs();
     }
     if (
       !this.isMetricListInSaveProgress &&
       this.metricList.length >= MAX_LOG_EXP_COUNT
     ) {
-      await this.save(SaveLogType.Metric);
+      await this.saveMetric();
     }
   }
   // 2. 定时任务，每5分钟时间上传一次，如果没超过 30 个
@@ -115,45 +117,36 @@ export class MyLoggerService extends ConsoleLogger implements LoggerService {
     this.manuallySave();
   }
 
-  // 存储失败进行重试 , //TODO: metric 和 customLog 都使用该方法进行上传
+  // 存储失败进行重试 ,
   // TODO: 重试达到一定次数 发送报警(邮箱) 到管理员 停止重试(丢掉日志.....，或者把日志格式化发送到邮箱)
-  async save(type: SaveLogType) {
-    switch (type) {
-      case SaveLogType.CustomLog:
-        const dbCustomLogList = this.customLogList.slice(0, MAX_LOG_EXP_COUNT);
-        try {
-          this.isCustomLogListInSaveProgress = true;
-          // TODO: 日志批量存储
-          // 存储成功才把缓存的日志删除掉
-          this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
-        } catch (error) {
-          console.error(
-            `自定义日志存储失败，已尝试缓存到之后进行存储,errorMsg = ${
-              (error as Error).message
-            }`,
-          );
-        } finally {
-          this.isCustomLogListInSaveProgress = false;
-        }
-      case SaveLogType.Metric:
-        const dbMetricList = this.metricList.slice(0, MAX_LOG_EXP_COUNT);
-        try {
-          this.isCustomLogListInSaveProgress = true;
-          // TODO: 日志批量存储
-          // 存储成功才把缓存的日志删除掉
-          this.metricList.splice(0, MAX_LOG_EXP_COUNT);
-        } catch (error) {
-          console.error(
-            `打点信息存储失败，已尝试缓存到之后进行存储,errorMsg = ${
-              (error as Error).message
-            }`,
-          );
-        } finally {
-          this.isMetricListInSaveProgress = false;
-        }
-        return;
-      default:
-        return;
+  async saveMetric() {
+    try {
+      const metricWillSaved = this.metricList.slice(0, MAX_LOG_EXP_COUNT);
+      // TODO: 日志批量存储
+      this.metricList.splice(0, MAX_LOG_EXP_COUNT);
+    } catch (error) {
+      console.error(
+        `自定义日志缓存失败，在下一轮存储过程进行重试,errorMsg = ${
+          (error as Error).message
+        }`,
+      );
+    } finally {
+      this.isCustomLogListInSaveProgress = false;
+    }
+  }
+  async saveCustomLogs() {
+    try {
+      const logsWillSaved = this.customLogList.slice(0, MAX_LOG_EXP_COUNT);
+      // TODO: 日志批量存储
+      this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
+    } catch (error) {
+      console.error(
+        `自定义日志缓存失败，在下一轮存储过程进行重试,errorMsg = ${
+          (error as Error).message
+        }`,
+      );
+    } finally {
+      this.isCustomLogListInSaveProgress = false;
     }
   }
 }
