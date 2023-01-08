@@ -9,8 +9,6 @@ import {
   Post,
   UseGuards,
   Request,
-  Get,
-  Query,
   HttpException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -71,6 +69,7 @@ export class UserController {
         msg: '该用户不存在',
       });
     }
+    console.log(user);
     if (!ability.can(Action.Update, userWillUpdate)) {
       throw new NoPermissionException('您无权完成该操作');
     }

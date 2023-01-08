@@ -1,6 +1,6 @@
 import { createResponse } from 'src/common/transform/response.transform';
 import { ConfigService } from '@nestjs/config';
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { creatSendVerifyCodeTemplate } from 'src/share/mailer.templates';
 import { randomCode } from 'src/share/utils';
 import { Email } from 'src/types';
