@@ -1,10 +1,10 @@
 export type LogContent = string;
 export type CreateLogTime = Date;
 export enum LogLevel {
-  Log = 'log',
-  Warn = 'warn',
-  Error = 'error',
-  Debug = 'debug',
+  Log = 'LOG',
+  Warn = 'WARN',
+  Error = 'ERROR',
+  Debug = 'DEBUG',
 }
 export type CustomLog = {
   logLevel: LogLevel;

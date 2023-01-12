@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { EntityCreateTime, LogLevel } from 'src/types';
+import { EntityCreateTime, LogLevel, LogContent } from 'src/types';
 
 @Entity('customLog')
 export class CustomLogEntity {
@@ -14,6 +14,9 @@ export class CustomLogEntity {
 
   @Column()
   level: LogLevel;
+
+  @Column()
+  logContext: LogContent;
 
   @Column()
   payload: string;
