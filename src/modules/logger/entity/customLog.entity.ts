@@ -16,9 +16,11 @@ export class CustomLogEntity {
   level: LogLevel;
 
   @Column()
-  logContext: LogContent;
+  content: LogContent;
 
-  @Column()
+  @Column({
+    default: '',
+  })
   payload: string;
 
   // 入库时间 并不是写下这条日志的时间

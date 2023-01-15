@@ -20,7 +20,6 @@ import { UpdateUserDto } from './dto/update.dto';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { NoPermissionException } from 'src/common/exceptions/NoPermissionException';
 import { LoginEmailGuard } from '../auth/guard/local.email.guard';
-import { ElevenLoggerService } from '../logger/logger.service';
 
 @Controller('user')
 export class UserController {
@@ -28,10 +27,7 @@ export class UserController {
     private readonly userService: UserService,
     private authService: AuthService,
     private caslAbilityFactory: CaslAbilityFactory,
-    private logger: ElevenLoggerService,
-  ) {
-    this.logger.setContextName('UserController');
-  }
+  ) {}
 
   @Post('/register')
   @isPublic()

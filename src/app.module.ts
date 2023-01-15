@@ -1,4 +1,3 @@
-import { LoggerModule } from './modules/logger/logger.module';
 import { KmsEntity } from './modules/kms/entity/kms.entity';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
@@ -14,6 +13,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { CustomLogEntity } from './modules/logger/entity/customLog.entity';
 import { MetricEntity } from './modules/logger/entity/metric.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { LoggerModule } from './modules/logger/logger.module';
 
 @Module({
   imports: [

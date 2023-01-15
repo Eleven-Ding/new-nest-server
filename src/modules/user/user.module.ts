@@ -1,4 +1,3 @@
-import { LoggerModule } from './../logger/logger.module';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './../auth/auth.service';
 import { Module } from '@nestjs/common';
@@ -10,7 +9,7 @@ import { SmtpService } from '../smtp/smtp.service';
 import { CaslAbilityFactory } from '../casl/casl-ability.factory';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), LoggerModule],
+  imports: [TypeOrmModule.forFeature([UserEntity])],
   controllers: [UserController],
   providers: [
     UserService,

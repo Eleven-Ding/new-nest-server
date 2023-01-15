@@ -1,12 +1,15 @@
-import { Metric } from './../../types/log';
 import {
-  CustomLog,
-  EntityCreateTime,
-  LogContent,
-  LogLevel,
-  MetricValue,
+  ChalkData,
+  CustomLogData,
+  LogLevelColor,
+  LogType,
+  MAX_LOG_EXP_COUNT,
+  MetricConsoleColor,
+  MetricData,
   MetricKey,
-} from 'src/types';
+  MetricValue,
+} from './../../types/log';
+import { LogContent, LogLevel } from 'src/types';
 import { MetricEntity } from './entity/metric.entity';
 import { Injectable, LoggerService, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,95 +17,104 @@ import { Repository, DataSource } from 'typeorm';
 import { CustomLogEntity } from './entity/customLog.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as chalk from 'chalk';
-export type CoustomlogData = {
-  level: LogLevel;
-  payload: Record<string, any>;
-  createTime?: EntityCreateTime;
-};
-export const MAX_LOG_EXP_COUNT = 3; // 收集10条日志就进行一次存储
-export enum SaveLogType {
-  CustomLog,
-  Metric,
-}
-export const LogLevelColor = {
-  [LogLevel.Log]: '#00ff80',
-  [LogLevel.Warn]: '#c99e1d',
-  [LogLevel.Error]: '#e00505',
-  [LogLevel.Debug]: '#0572e0',
-};
 
-export type LogContext = Record<
-  string,
-  string | number | boolean | undefined | null
->;
 @Injectable()
 export class ElevenLoggerService implements LoggerService {
   @Inject()
   dataSource: DataSource;
 
-  @InjectRepository(CustomLogEntity)
-  customLogEntity: Repository<CustomLogEntity>;
-
   @InjectRepository(MetricEntity)
   metricEntity: Repository<MetricEntity>;
 
+  @InjectRepository(CustomLogEntity)
+  customLogEntity: Repository<CustomLogEntity>;
+
   // 自定义日志
-  private customLogList: CustomLog[] = [];
+  private customLogList: CustomLogData[] = [];
   private isCustomLogListInSaveProgress = false;
 
   // 打点
-  private metricList: Metric[] = [];
+  private metricList: MetricData[] = [];
   private isMetricListInSaveProgress = false;
 
-  // 特化，处在哪个上下文名称
-  private contextName: string;
-
-  log(logContent: LogContent, context?: LogContext) {
-    this.createLogData(logContent, LogLevel.Log, context);
+  log(logContent: LogContent, ...rest) {
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Log, rest);
   }
   warn(logContent: LogContent, ...rest) {
-    this.createLogData(logContent, LogLevel.Warn, rest);
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Warn, rest);
   }
   error(logContent: LogContent, ...rest) {
-    this.createLogData(logContent, LogLevel.Error, rest);
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Error, rest);
   }
   debug(logContent: LogContent, ...rest) {
-    this.createLogData(logContent, LogLevel.Debug, rest);
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Debug, rest);
   }
-  metric(metricKey: MetricKey, metricValue: MetricValue) {
-    this.metricList.push({
-      metricKey,
-      metricValue,
-      metricTime: Date.now(),
-    });
-    this.manuallySave();
-  }
-  chalkConsole(logContext: LogContent, logLevel: LogLevel) {
-    console.log(
-      chalk.hex(LogLevelColor[logLevel])(`[ ${logLevel} ] ${logContext}`),
-      chalk.yellow(`[ ${this.contextName} ]`),
-      chalk.green(new Date().toLocaleString()),
-    );
+  metric(metricKey: MetricKey, metricValue: MetricValue, ...rest) {
+    this.createLogData(LogType.Metric, metricKey, metricValue, rest);
   }
 
-  public setContextName(contextName: string) {
-    this.contextName = contextName;
+  /**
+   *  彩色打印，只接受 string 和 对应的 color 其他不用关心
+   */
+  chalkConsole(chalkConsoleData: ChalkData[]) {
+    const consoleStringList: string[] = [];
+    chalkConsoleData.forEach(({ color, content }) => {
+      consoleStringList.push(chalk.hex(color)(content));
+    });
+    console.log(...consoleStringList);
   }
 
   /**
    * 创建自定义日志数据
    */
-  createLogData(logContent: LogContent, logLevel: LogLevel, context?: any) {
-    this.customLogList.push({
-      logContent,
-      logLevel,
-      context: {
-        contextName: this.contextName,
-        ...context,
-      },
-      logTime: Date.now(),
+  createLogData(logType: LogType, ...rest) {
+    const chalkConsoleData: ChalkData[] = [];
+    if (logType === LogType.CustomLog) {
+      const [content, level, common] = rest;
+      this.customLogList.push({
+        level,
+        content,
+        createTime: Date.now(),
+        payload: common,
+      });
+      chalkConsoleData.push(
+        {
+          content: `[ ${level} ]`,
+          color: LogLevelColor[level],
+        },
+        {
+          content,
+          color: LogLevelColor[level],
+        },
+      );
+    } else if (logType === LogType.Metric) {
+      const [metricKey, metricValue, common] = rest;
+      this.metricList.push({
+        metricKey,
+        metricValue,
+        createTime: Date.now(),
+        payload: common,
+      });
+      chalkConsoleData.push(
+        {
+          content: `[ Metric ]`,
+          color: MetricConsoleColor,
+        },
+        {
+          content: metricKey,
+          color: MetricConsoleColor,
+        },
+        {
+          content: metricValue,
+          color: MetricConsoleColor,
+        },
+      );
+    }
+    chalkConsoleData.push({
+      content: new Date().toLocaleString(),
+      color: '#fff',
     });
-    this.chalkConsole(logContent, logLevel);
+    this.chalkConsole(chalkConsoleData);
     this.manuallySave();
   }
 
@@ -120,38 +132,24 @@ export class ElevenLoggerService implements LoggerService {
       !this.isMetricListInSaveProgress &&
       this.metricList.length >= MAX_LOG_EXP_COUNT
     ) {
-      this.saveMetric();
+      this.saveMetrics();
     }
   }
-  // 2. 定时任务，每5分钟时间上传一次，如果没超过 30 个
-
-  saveMetric() {
-    try {
-      const metricWillSaved = this.metricList.slice(0, MAX_LOG_EXP_COUNT);
-      // TODO: 日志批量存储
-      this.metricList.splice(0, MAX_LOG_EXP_COUNT);
-    } catch (error) {
-      console.error(
-        `自定义日志缓存失败，在下一轮存储过程进行重试,errorMsg = ${
-          (error as Error).message
-        }`,
-      );
-    } finally {
-      this.isCustomLogListInSaveProgress = false;
-    }
-  }
-
   /**
    * 存储自定义日志，存储失败则重试，暂时无限重试
    */
   saveCustomLogs() {
+    if (this.isCustomLogListInSaveProgress) {
+      return;
+    }
     try {
+      this.isCustomLogListInSaveProgress = true;
       const logsWillSaved = this.customLogList.slice(0, MAX_LOG_EXP_COUNT);
       const logsWillSavedEntityList: CustomLogEntity[] = [];
-      logsWillSaved.forEach(({ logLevel, logContent, ...rest }) => {
+      logsWillSaved.forEach(({ level, content, ...rest }) => {
         const customLogEntity = new CustomLogEntity();
-        customLogEntity.level = logLevel;
-        customLogEntity.logContext = logContent;
+        customLogEntity.level = level;
+        customLogEntity.content = content;
         customLogEntity.payload = JSON.stringify(rest);
         logsWillSavedEntityList.push(customLogEntity);
       });
@@ -165,7 +163,7 @@ export class ElevenLoggerService implements LoggerService {
       this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
     } catch (error) {
       console.error(
-        `自定义日志缓存失败，在下一轮存储过程进行重试,errorMsg = ${
+        `自定义日志存储失败，在下一轮存储过程进行重试,errorMsg = ${
           (error as Error).message
         }`,
       );
@@ -173,12 +171,50 @@ export class ElevenLoggerService implements LoggerService {
       this.isCustomLogListInSaveProgress = false;
     }
   }
+
+  /**
+   * 存储打点信息
+   */
+  saveMetrics() {
+    if (this.isMetricListInSaveProgress) {
+      return;
+    }
+    try {
+      this.isMetricListInSaveProgress = true;
+      const metricsWillSaved = this.metricList.slice(0, MAX_LOG_EXP_COUNT);
+      const metricsWillSavedEntityList: MetricEntity[] = [];
+      metricsWillSaved.forEach(({ metricKey, metricValue, ...rest }) => {
+        const metricEntity = new MetricEntity();
+        metricEntity.metricKey = metricKey;
+        metricEntity.metricValue = metricValue;
+        metricEntity.payload = JSON.stringify(rest);
+        metricsWillSavedEntityList.push(metricEntity);
+      });
+      // 这里不阻塞后续的流程，异步挂起就好
+      this.dataSource
+        .getRepository(MetricEntity)
+        .createQueryBuilder()
+        .insert()
+        .values(metricsWillSavedEntityList)
+        .execute();
+      this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
+    } catch (error) {
+      console.error(
+        `打点信息存储失败，在下一轮存储过程进行重试,errorMsg = ${
+          (error as Error).message
+        }`,
+      );
+    } finally {
+      this.isMetricListInSaveProgress = false;
+    }
+  }
+
   /**
    * 定时任务，如果数量一直没打到，那么就取现存的全部数据进行存储
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   scheduledSave() {
-    console.log('自动存储');
-    this.manuallySave();
+    this.saveCustomLogs();
+    this.saveMetrics();
   }
 }

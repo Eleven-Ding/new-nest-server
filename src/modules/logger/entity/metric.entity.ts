@@ -16,8 +16,10 @@ export class MetricEntity {
   metricKey: MetricKey;
 
   @Column()
-  payload: MetricValue;
+  metricValue: MetricValue;
 
+  @Column()
+  payload: string;
   // 入库时间 并不是打这个点的时间
   @CreateDateColumn()
   serverTime: EntityCreateTime;
