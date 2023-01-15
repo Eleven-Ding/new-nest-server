@@ -1,6 +1,8 @@
 import {
   ChalkData,
   CustomLogData,
+  LogContent,
+  LogLevel,
   LogLevelColor,
   LogType,
   MAX_LOG_EXP_COUNT,
@@ -9,16 +11,17 @@ import {
   MetricKey,
   MetricValue,
   Payload,
-} from './../../types/log';
-import { LogContent, LogLevel } from 'src/types';
+} from 'src/types';
 import { MetricEntity } from './entity/metric.entity';
 import { Injectable, LoggerService, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { CustomLogEntity } from './entity/customLog.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { ConsoleTimeColor } from './../../types/log';
+import { ConsoleTimeColor } from 'src/types';
 import * as chalk from 'chalk';
+
+const isProd = process.env.NODE_ENV === 'production';
 
 @Injectable()
 export class ElevenLoggerService implements LoggerService {
@@ -59,6 +62,10 @@ export class ElevenLoggerService implements LoggerService {
    *  彩色打印，只接受 string 和 对应的 color 其他不用关心
    */
   chalkConsole(chalkConsoleData: ChalkData[]) {
+    // 线上不打印日志，耗时
+    if (isProd) {
+      return;
+    }
     const consoleStringList: string[] = [];
     chalkConsoleData.forEach(({ color, content }) => {
       consoleStringList.push(chalk.hex(color)(content));

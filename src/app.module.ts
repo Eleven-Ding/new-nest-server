@@ -10,13 +10,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserEntity } from './modules/user/entity/user.entity';
 import { SmtpModule } from './modules/smtp/smtp.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { CustomLogEntity } from './modules/logger/entity/customLog.entity';
 import { MetricEntity } from './modules/logger/entity/metric.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from './modules/logger/logger.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseTransformerInterceptor } from './common/transform/response.transform';
 import { HttpExceptionFilter } from './common/filters/httpException.filter';
+import { CustomLogEntity } from './modules/logger/entity/customLog.entity';
 
 @Module({
   imports: [

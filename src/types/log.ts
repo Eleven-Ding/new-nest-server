@@ -1,5 +1,4 @@
 export type LogContent = string;
-export type CreateLogTime = Date;
 export enum LogLevel {
   Log = 'LOG',
   Warn = 'WARN',

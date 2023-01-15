@@ -1,5 +1,4 @@
 import { User } from './../../types/user';
-import { ElevenLoggerService } from './../../modules/logger/logger.service';
 import {
   Catch,
   HttpException,
@@ -8,6 +7,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ElevenLoggerService } from '../../modules/logger/logger.service';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

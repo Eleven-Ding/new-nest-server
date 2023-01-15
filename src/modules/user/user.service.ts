@@ -1,3 +1,4 @@
+import { ElevenLoggerService } from './../logger/logger.service';
 import { encryption } from './../../share/encryption';
 import { UpdateUserDto } from './dto/update.dto';
 import { FindAllDto } from './dto/findAll.dto';
@@ -21,7 +22,10 @@ export class UserService {
   @InjectRepository(UserEntity)
   userEntity: Repository<UserEntity>;
 
-  constructor(private smtpService: SmtpService) {}
+  constructor(
+    private smtpService: SmtpService,
+    private logger: ElevenLoggerService,
+  ) {}
 
   async register(registerDto: RegisterDto) {
     try {
@@ -75,6 +79,9 @@ export class UserService {
       select: ['password', 'email', 'userId', 'role', 'state'],
     });
     if (!user) {
+      this.logger.error(`${selectKey} = ${userPrimaryKey} 的用户不存在`, {
+        [selectKey]: userPrimaryKey,
+      });
       throw new NotFoundException(
         `${selectKey} = ${userPrimaryKey} 的用户不存在,`,
       );

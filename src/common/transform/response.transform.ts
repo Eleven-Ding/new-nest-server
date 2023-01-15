@@ -1,13 +1,12 @@
-import { ElevenLoggerService } from './../../modules/logger/logger.service';
 import {
   CallHandler,
   ExecutionContext,
   NestInterceptor,
-  Injectable,
   Inject,
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
 import { Request } from 'express';
+import { ElevenLoggerService } from '../../modules/logger/logger.service';
 
 export const createResponse = ({
   msg,
