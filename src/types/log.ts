@@ -18,8 +18,8 @@ export type Metric = {
 
 // 日志类型
 export enum LogType {
-  CustomLog = 'custom', // 自定义日志
-  Metric = 'metric', // 打点
+  CustomLog = 'Custom', // 自定义日志
+  Metric = 'Metric', // 打点
 }
 
 export type CustomLogData = {
@@ -38,13 +38,15 @@ export type MetricData = {
 export const MAX_LOG_EXP_COUNT = 10; // 收集10条日志就进行一次存储
 
 export const LogLevelColor = {
-  [LogLevel.Log]: '#00ff80',
+  [LogLevel.Log]: '#47d147',
   [LogLevel.Warn]: '#c99e1d',
-  [LogLevel.Error]: '#e00505',
+  [LogLevel.Error]: '#cc3300',
   [LogLevel.Debug]: '#0572e0',
 };
 
 export const MetricConsoleColor = '#c91d9e';
+
+export const ConsoleTimeColor = '#c5c5c5';
 
 export type Payload = Record<
   string,

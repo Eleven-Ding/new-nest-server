@@ -8,6 +8,7 @@ import {
   MetricData,
   MetricKey,
   MetricValue,
+  Payload,
 } from './../../types/log';
 import { LogContent, LogLevel } from 'src/types';
 import { MetricEntity } from './entity/metric.entity';
@@ -16,6 +17,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { CustomLogEntity } from './entity/customLog.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ConsoleTimeColor } from './../../types/log';
 import * as chalk from 'chalk';
 
 @Injectable()
@@ -37,20 +39,20 @@ export class ElevenLoggerService implements LoggerService {
   private metricList: MetricData[] = [];
   private isMetricListInSaveProgress = false;
 
-  log(logContent: LogContent, ...rest) {
-    this.createLogData(LogType.CustomLog, logContent, LogLevel.Log, rest);
+  log(logContent: LogContent, context: Payload) {
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Log, context);
   }
-  warn(logContent: LogContent, ...rest) {
-    this.createLogData(LogType.CustomLog, logContent, LogLevel.Warn, rest);
+  warn(logContent: LogContent, context: Payload) {
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Warn, context);
   }
-  error(logContent: LogContent, ...rest) {
-    this.createLogData(LogType.CustomLog, logContent, LogLevel.Error, rest);
+  error(logContent: LogContent, context: Payload) {
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Error, context);
   }
-  debug(logContent: LogContent, ...rest) {
-    this.createLogData(LogType.CustomLog, logContent, LogLevel.Debug, rest);
+  debug(logContent: LogContent, context: Payload) {
+    this.createLogData(LogType.CustomLog, logContent, LogLevel.Debug, context);
   }
-  metric(metricKey: MetricKey, metricValue: MetricValue, ...rest) {
-    this.createLogData(LogType.Metric, metricKey, metricValue, rest);
+  metric(metricKey: MetricKey, metricValue: MetricValue, ...context) {
+    this.createLogData(LogType.Metric, metricKey, metricValue, context);
   }
 
   /**
@@ -61,21 +63,21 @@ export class ElevenLoggerService implements LoggerService {
     chalkConsoleData.forEach(({ color, content }) => {
       consoleStringList.push(chalk.hex(color)(content));
     });
-    console.log(...consoleStringList);
+    console.log(consoleStringList.join('   '));
   }
 
   /**
-   * 创建自定义日志数据
+   * 创建需要打印和存储的数据格式
    */
   createLogData(logType: LogType, ...rest) {
     const chalkConsoleData: ChalkData[] = [];
     if (logType === LogType.CustomLog) {
-      const [content, level, common] = rest;
+      const [content, level, payload] = rest;
       this.customLogList.push({
         level,
         content,
         createTime: Date.now(),
-        payload: common,
+        payload,
       });
       chalkConsoleData.push(
         {
@@ -88,16 +90,16 @@ export class ElevenLoggerService implements LoggerService {
         },
       );
     } else if (logType === LogType.Metric) {
-      const [metricKey, metricValue, common] = rest;
+      const [metricKey, metricValue, payload] = rest;
       this.metricList.push({
         metricKey,
         metricValue,
         createTime: Date.now(),
-        payload: common,
+        payload,
       });
       chalkConsoleData.push(
         {
-          content: `[ Metric ]`,
+          content: `[ ${LogType.Metric} ]`,
           color: MetricConsoleColor,
         },
         {
@@ -112,7 +114,7 @@ export class ElevenLoggerService implements LoggerService {
     }
     chalkConsoleData.push({
       content: new Date().toLocaleString(),
-      color: '#fff',
+      color: ConsoleTimeColor,
     });
     this.chalkConsole(chalkConsoleData);
     this.manuallySave();
@@ -139,6 +141,7 @@ export class ElevenLoggerService implements LoggerService {
    * 存储自定义日志，存储失败则重试，暂时无限重试
    */
   saveCustomLogs() {
+    // 防止自动触发和手动触发一起，加一个锁判断一下
     if (this.isCustomLogListInSaveProgress) {
       return;
     }
