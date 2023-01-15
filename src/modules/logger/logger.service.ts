@@ -39,19 +39,19 @@ export class ElevenLoggerService implements LoggerService {
   private metricList: MetricData[] = [];
   private isMetricListInSaveProgress = false;
 
-  log(logContent: LogContent, context: Payload) {
+  log(logContent: LogContent, context?: Payload) {
     this.createLogData(LogType.CustomLog, logContent, LogLevel.Log, context);
   }
-  warn(logContent: LogContent, context: Payload) {
+  warn(logContent: LogContent, context?: Payload) {
     this.createLogData(LogType.CustomLog, logContent, LogLevel.Warn, context);
   }
-  error(logContent: LogContent, context: Payload) {
+  error(logContent: LogContent, context?: Payload) {
     this.createLogData(LogType.CustomLog, logContent, LogLevel.Error, context);
   }
-  debug(logContent: LogContent, context: Payload) {
+  debug(logContent: LogContent, context?: Payload) {
     this.createLogData(LogType.CustomLog, logContent, LogLevel.Debug, context);
   }
-  metric(metricKey: MetricKey, metricValue: MetricValue, ...context) {
+  metric(metricKey: MetricKey, metricValue: MetricValue, context?: Payload) {
     this.createLogData(LogType.Metric, metricKey, metricValue, context);
   }
 
@@ -164,6 +164,7 @@ export class ElevenLoggerService implements LoggerService {
         .values(logsWillSavedEntityList)
         .execute();
       this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
+      console.log(`日志信息存储成功，存储数量 ${MAX_LOG_EXP_COUNT}`);
     } catch (error) {
       console.error(
         `自定义日志存储失败，在下一轮存储过程进行重试,errorMsg = ${
@@ -200,7 +201,8 @@ export class ElevenLoggerService implements LoggerService {
         .insert()
         .values(metricsWillSavedEntityList)
         .execute();
-      this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
+      this.metricList.splice(0, MAX_LOG_EXP_COUNT);
+      console.log(`打点信息存储成功，存储数量 ${MAX_LOG_EXP_COUNT}`);
     } catch (error) {
       console.error(
         `打点信息存储失败，在下一轮存储过程进行重试,errorMsg = ${

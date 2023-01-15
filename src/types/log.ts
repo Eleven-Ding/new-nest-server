@@ -35,7 +35,7 @@ export type MetricData = {
   payload: Payload;
   createTime?: number;
 };
-export const MAX_LOG_EXP_COUNT = 10; // 收集10条日志就进行一次存储
+export const MAX_LOG_EXP_COUNT = 30; // 收集30条日志就进行一次存储
 
 export const LogLevelColor = {
   [LogLevel.Log]: '#47d147',

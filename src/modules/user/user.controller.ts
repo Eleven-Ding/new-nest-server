@@ -69,7 +69,6 @@ export class UserController {
         msg: '该用户不存在',
       });
     }
-    console.log(user);
     if (!ability.can(Action.Update, userWillUpdate)) {
       throw new NoPermissionException('您无权完成该操作');
     }
