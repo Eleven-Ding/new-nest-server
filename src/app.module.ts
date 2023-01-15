@@ -14,6 +14,8 @@ import { CustomLogEntity } from './modules/logger/entity/customLog.entity';
 import { MetricEntity } from './modules/logger/entity/metric.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from './modules/logger/logger.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseTransformerInterceptor } from './common/transform/response.transform';
 
 @Module({
   imports: [
@@ -45,6 +47,12 @@ import { LoggerModule } from './modules/logger/logger.module';
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseTransformerInterceptor,
+    },
+  ],
 })
 export class AppModule {}

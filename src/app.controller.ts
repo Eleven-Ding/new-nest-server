@@ -10,7 +10,7 @@ export class AppController {
     private readonly configService: ConfigService,
   ) {}
 
-  @Get()
+  @Get('/gethello/api/1')
   @isPublic()
   // @Roles(UserRole.Admin)
   getHello() {

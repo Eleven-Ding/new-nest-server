@@ -164,7 +164,7 @@ export class ElevenLoggerService implements LoggerService {
         .values(logsWillSavedEntityList)
         .execute();
       this.customLogList.splice(0, MAX_LOG_EXP_COUNT);
-      console.log(`日志信息存储成功，存储数量 ${MAX_LOG_EXP_COUNT}`);
+      console.log(`日志信息存储成功，存储数量 ${logsWillSaved.length}`);
     } catch (error) {
       console.error(
         `自定义日志存储失败，在下一轮存储过程进行重试,errorMsg = ${
@@ -202,7 +202,7 @@ export class ElevenLoggerService implements LoggerService {
         .values(metricsWillSavedEntityList)
         .execute();
       this.metricList.splice(0, MAX_LOG_EXP_COUNT);
-      console.log(`打点信息存储成功，存储数量 ${MAX_LOG_EXP_COUNT}`);
+      console.log(`打点信息存储成功，存储数量 ${metricsWillSaved.length}`);
     } catch (error) {
       console.error(
         `打点信息存储失败，在下一轮存储过程进行重试,errorMsg = ${
