@@ -33,6 +33,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       method,
       userId: user?.userId,
     });
+    this.logger.metric(url.split('?')[0] + '_failed', 1);
     response.status(status).json({
       code: -1, // 这里的 code 应该是自定义的
       data: {
