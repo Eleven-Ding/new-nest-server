@@ -14,8 +14,9 @@ import { CustomLogEntity } from './modules/logger/entity/customLog.entity';
 import { MetricEntity } from './modules/logger/entity/metric.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from './modules/logger/logger.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseTransformerInterceptor } from './common/transform/response.transform';
+import { HttpExceptionFilter } from './common/filters/httpException.filter';
 
 @Module({
   imports: [
@@ -52,6 +53,10 @@ import { ResponseTransformerInterceptor } from './common/transform/response.tran
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseTransformerInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
     },
   ],
 })
